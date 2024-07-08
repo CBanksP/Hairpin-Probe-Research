@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1] - 2024-07-08
+### Added
+- Annotation on the plot to indicate the resonance detected by each method
+
+### Changed
+- Increased resolution of the figure for better save quality
+
+### Fixed
+
 ## [2.0] - 2024-07-08
 ### Added
 - Data smoothing using a Savitzky-Golay filter to reduce noise

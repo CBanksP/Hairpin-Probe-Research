@@ -43,21 +43,37 @@ def analyze_vacuum_resonance_data(data_file):
     plt.plot(df['Frequency (MHz)'], df['Signal'], 'b-', alpha=0.5, label='Raw Data')
     plt.plot(df['Frequency (MHz)'], df['Smooth_Signal'], 'g-', label='Smoothed Data')
     
+    # Lorentzian fit
     if resonance_freq_lorentz is not None:
         plt.plot(df['Frequency (MHz)'], lorentzian(df['Frequency (MHz)'], *popt), 'r-', label='Lorentzian Fit')
-        plt.axvline(x=resonance_freq_lorentz, color='r', linestyle='--', label='Lorentzian Resonance')
+        plt.axvline(x=resonance_freq_lorentz, color='r', linestyle='--')
+        plt.annotate(f'Lorentzian: {resonance_freq_lorentz:.2f} MHz', 
+                     xy=(resonance_freq_lorentz, df['Smooth_Signal'].min()),
+                     xytext=(10, 30), textcoords='offset points',
+                     arrowprops=dict(arrowstyle="->", color='r'))
     
-    plt.axvline(x=resonance_freq_min, color='g', linestyle='--', label='Minimum Resonance')
+    # Minimum method
+    plt.axvline(x=resonance_freq_min, color='g', linestyle='--')
+    plt.annotate(f'Minimum: {resonance_freq_min:.2f} MHz', 
+                 xy=(resonance_freq_min, df['Smooth_Signal'].min()),
+                 xytext=(10, 60), textcoords='offset points',
+                 arrowprops=dict(arrowstyle="->", color='g'))
     
+    # Peak detection
     if resonance_freq_peak is not None:
-        plt.axvline(x=resonance_freq_peak, color='m', linestyle='--', label='Peak Detection Resonance')
+        plt.axvline(x=resonance_freq_peak, color='m', linestyle='--')
+        plt.annotate(f'Peak Detection: {resonance_freq_peak:.2f} MHz', 
+                     xy=(resonance_freq_peak, df['Smooth_Signal'].min()),
+                     xytext=(10, 90), textcoords='offset points',
+                     arrowprops=dict(arrowstyle="->", color='m'))
     
     plt.xlabel('Frequency (MHz)')
     plt.ylabel('Signal Amplitude')
     plt.title('Vacuum Resonance of Plasma Chamber')
     plt.grid(True)
     plt.legend()
-    plt.savefig(f'{data_file[:-4]}_analysis_plot.png')
+    plt.tight_layout()
+    plt.savefig(f'{data_file[:-4]}_analysis_plot.png', dpi=300)
     plt.show()
 
     # Print results
