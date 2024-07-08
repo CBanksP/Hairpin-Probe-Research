@@ -100,8 +100,6 @@ def analyze_vacuum_resonance_data(data_file):
 
     print(f"Saving plot as {data_file[:-4]}_analysis_plot.png")
     plt.savefig(f'{data_file[:-4]}_analysis_plot.png', dpi=300)
-    print("Displaying plot...")
-    plt.show()
 
     print("\nAnalysis Results:")
     print(f"Resonance frequency (Minimum method): {resonance_freq_min:.2f} MHz")
@@ -113,6 +111,9 @@ def analyze_vacuum_resonance_data(data_file):
         print(f"Resonance frequency (Peak detection): {resonance_freq_peak:.2f} MHz")
     else:
         print("Peak detection did not find a clear peak.")
+
+    print("\nDisplaying plot...")
+    plt.show()
 
     return resonance_freq_min, resonance_freq_lorentz, resonance_freq_peak
 
