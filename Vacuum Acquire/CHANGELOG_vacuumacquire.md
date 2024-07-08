@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4] - 2024-07-08
+### Added
+
+### Changed
+- The email addresses and password are stored in an .env file so that they are not in the script
+
+### Fixed
+
 ## [2.3] - 2024-07-08
 ### Added
 - Raw plot will be attached to the email
