@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0] - 2024-07-08
+### Added
+
+### Changed
+- It is now looking for peaks rather than dips
+
+### Fixed
+
 ## [2.5] - 2024-07-08
 ### Added
 - Comments about the purpose of each imported library
