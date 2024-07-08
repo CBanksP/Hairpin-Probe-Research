@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from scipy.signal import find_peaks
+from scipy.signal import find_peaks, savgol_filter
 
 def lorentzian(x, a, x0, gam):
     return a * gam**2 / (gam**2 + (x - x0)**2)
@@ -14,68 +14,66 @@ def lorentzian(x, a, x0, gam):
 def analyze_vacuum_resonance_data(data_file):
     # Load data
     df = pd.read_pickle(data_file)
-
-    # Find peaks to estimate initial parameters
-    peaks, _ = find_peaks(df['Signal'], height=np.mean(df['Signal']))
-    if len(peaks) > 0:
-        max_peak = peaks[np.argmax(df['Signal'].iloc[peaks])]
-        a_guess = df['Signal'].iloc[max_peak]
-        x0_guess = df['Frequency (MHz)'].iloc[max_peak]
-    else:
-        a_guess = df['Signal'].max()
-        x0_guess = df['Frequency (MHz)'].mean()
     
-    gam_guess = (df['Frequency (MHz)'].max() - df['Frequency (MHz)'].min()) / 10
+    # Smooth the data using Savitzky-Golay filter
+    df['Smooth_Signal'] = savgol_filter(df['Signal'], window_length=51, polyorder=3)
 
-    # Fit Lorentzian function
+    # Method 1: Find minimum (resonance typically corresponds to minimum)
+    min_index = df['Smooth_Signal'].idxmin()
+    resonance_freq_min = df['Frequency (MHz)'].iloc[min_index]
+    
+    # Method 2: Lorentzian fit
     try:
-        popt, pcov = curve_fit(lorentzian, df['Frequency (MHz)'], df['Signal'], 
-                               p0=[a_guess, x0_guess, gam_guess],
-                               maxfev=10000)  # Increase max function evaluations
-        
-        resonance_freq = popt[1]  # x0 parameter of the Lorentzian fit
-        
-        # Plot the data and fit
-        plt.figure(figsize=(10, 6))
-        plt.plot(df['Frequency (MHz)'], df['Signal'], 'b-', label='Data')
+        popt, _ = curve_fit(lorentzian, df['Frequency (MHz)'], df['Smooth_Signal'], 
+                            p0=[df['Smooth_Signal'].min(), resonance_freq_min, 1],
+                            maxfev=10000)
+        resonance_freq_lorentz = popt[1]
+    except RuntimeError:
+        resonance_freq_lorentz = None
+    
+    # Method 3: Peak detection (as a backup)
+    peaks, _ = find_peaks(-df['Smooth_Signal'], distance=len(df)//10)
+    if len(peaks) > 0:
+        resonance_freq_peak = df['Frequency (MHz)'].iloc[peaks[0]]
+    else:
+        resonance_freq_peak = None
+
+    # Plot the data and analysis results
+    plt.figure(figsize=(12, 8))
+    plt.plot(df['Frequency (MHz)'], df['Signal'], 'b-', alpha=0.5, label='Raw Data')
+    plt.plot(df['Frequency (MHz)'], df['Smooth_Signal'], 'g-', label='Smoothed Data')
+    
+    if resonance_freq_lorentz is not None:
         plt.plot(df['Frequency (MHz)'], lorentzian(df['Frequency (MHz)'], *popt), 'r-', label='Lorentzian Fit')
-        plt.xlabel('Frequency (MHz)')
-        plt.ylabel('Signal Amplitude')
-        plt.title('Vacuum Resonance of Plasma Chamber')
-        plt.grid(True)
-        plt.legend()
+        plt.axvline(x=resonance_freq_lorentz, color='r', linestyle='--', label='Lorentzian Resonance')
+    
+    plt.axvline(x=resonance_freq_min, color='g', linestyle='--', label='Minimum Resonance')
+    
+    if resonance_freq_peak is not None:
+        plt.axvline(x=resonance_freq_peak, color='m', linestyle='--', label='Peak Detection Resonance')
+    
+    plt.xlabel('Frequency (MHz)')
+    plt.ylabel('Signal Amplitude')
+    plt.title('Vacuum Resonance of Plasma Chamber')
+    plt.grid(True)
+    plt.legend()
+    plt.savefig(f'{data_file[:-4]}_analysis_plot.png')
+    plt.show()
 
-        plt.plot(resonance_freq, lorentzian(resonance_freq, *popt), 'go', markersize=10)
-        plt.annotate(f'Resonance: {resonance_freq:.2f} MHz', 
-                     xy=(resonance_freq, lorentzian(resonance_freq, *popt)),
-                     xytext=(10, 10), textcoords='offset points')
+    # Print results
+    print(f"Resonance frequency (Minimum method): {resonance_freq_min:.2f} MHz")
+    if resonance_freq_lorentz is not None:
+        print(f"Resonance frequency (Lorentzian fit): {resonance_freq_lorentz:.2f} MHz")
+    else:
+        print("Lorentzian fit failed to converge.")
+    if resonance_freq_peak is not None:
+        print(f"Resonance frequency (Peak detection): {resonance_freq_peak:.2f} MHz")
+    else:
+        print("Peak detection did not find a clear peak.")
 
-        plt.savefig(f'{data_file[:-4]}_analysis_plot.png')
-        plt.show()
-
-        print(f"Resonance frequency: {resonance_freq:.2f} MHz")
-        return resonance_freq
-
-    except RuntimeError as e:
-        print(f"Curve fitting failed: {str(e)}")
-        print("Plotting raw data for inspection...")
-        
-        plt.figure(figsize=(10, 6))
-        plt.plot(df['Frequency (MHz)'], df['Signal'], 'b-', label='Data')
-        plt.xlabel('Frequency (MHz)')
-        plt.ylabel('Signal Amplitude')
-        plt.title('Vacuum Resonance of Plasma Chamber (Raw Data)')
-        plt.grid(True)
-        plt.legend()
-        plt.savefig(f'{data_file[:-4]}_raw_data_plot.png')
-        plt.show()
-        
-        return None
+    return resonance_freq_min, resonance_freq_lorentz, resonance_freq_peak
 
 # Run the script
 if __name__ == "__main__":
-    resonance = analyze_vacuum_resonance_data(DATA_FILE)
-    if resonance is not None:
-        print(f"Analysis complete. Resonance frequency found at {resonance:.2f} MHz")
-    else:
-        print("Analysis could not determine a resonance frequency. Please inspect the raw data plot.")
+    resonance_min, resonance_lorentz, resonance_peak = analyze_vacuum_resonance_data(DATA_FILE)
+    print("\nAnalysis complete. Please review the plot and printed results to determine the most appropriate resonance frequency.")
