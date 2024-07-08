@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0] - 2024-07-08
+### Added
+- Will email the user when the sweep is over to save time
+
+### Changed
+
+### Fixed
+
+
 ## [1.3] - 2024-07-08
 ### Added
 - Short delay between frequency steps to potentially avoid an error

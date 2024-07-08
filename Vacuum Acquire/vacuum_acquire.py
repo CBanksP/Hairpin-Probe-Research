@@ -3,12 +3,17 @@ RUN_NAME = 'vacuum_resonance_test'  # Name for the output data file
 RP_HOST = 'rp-f0acab.local'  # Red Pitaya host name or IP address
 MW_DEVICE = 'COM5'  # Windfreak SynthHD Mini COM port (Windows) or serial device (Linux)
 MW_POWER_DB = 10.0  # Microwave generator power (dB)
-MW_FREQUENCY_MIN_MHz = 1750  # Minimum frequency (MHz)
-MW_FREQUENCY_MAX_MHz = 2500  # Maximum frequency (MHz)
+MW_FREQUENCY_MIN_MHz = 1700  # Minimum frequency (MHz)
+MW_FREQUENCY_MAX_MHz = 1850  # Maximum frequency (MHz)
 MW_FREQUENCY_STEP_MHz = 0.1  # Frequency step size (MHz)
-FREQUENCY_DECIMAL_PLACES = 2  # Number of decimal places for frequency
+FREQUENCY_DECIMAL_PLACES = 1  # Number of decimal places for frequency
 AVERAGES = 5  # Number of readings to average at each frequency
 DELAY_BETWEEN_STEPS = 0.1  # Delay in seconds between frequency steps
+
+# Email notification settings
+SENDER_EMAIL = "your_email@example.com"
+SENDER_PASSWORD = "your_email_password"
+RECIPIENT_EMAIL = "recipient@example.com"
 
 # Import necessary libraries
 import numpy as np
@@ -17,6 +22,9 @@ import matplotlib.pyplot as plt
 from windfreak_mini import SynthHDMini
 import redpitaya_scpi as rp_scpi
 import time
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 def acquire_vacuum_resonance_data(
     rp_host,
@@ -104,6 +112,21 @@ def acquire_vacuum_resonance_data(
 
     return df
 
+def send_notification_email(subject, body):
+    msg = MIMEMultipart()
+    msg['From'] = SENDER_EMAIL
+    msg['To'] = RECIPIENT_EMAIL
+    msg['Subject'] = subject
+    
+    msg.attach(MIMEText(body, 'plain'))
+    
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(SENDER_EMAIL, SENDER_PASSWORD)
+    text = msg.as_string()
+    server.sendmail(SENDER_EMAIL, RECIPIENT_EMAIL, text)
+    server.quit()
+
 # Run the script
 if __name__ == "__main__":
     print("Starting data acquisition...")
@@ -129,3 +152,11 @@ if __name__ == "__main__":
 
     print("Data acquisition script completed.")
     print(f"Raw data plot saved as {RUN_NAME}_raw_data_plot.png")
+
+    # Send email notification
+    send_notification_email(
+        subject="Vacuum Resonance Data Acquisition Complete",
+        body=f"The vacuum resonance data acquisition script '{RUN_NAME}' has finished running."
+    )
+
+    print("Email notification sent.")
