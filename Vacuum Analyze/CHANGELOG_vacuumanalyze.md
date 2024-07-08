@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5] - 2024-07-08
+### Added
+- Comments about the purpose of each imported library
+- Comments about the Lorentzian function and its parameters
+- Comments about each step of the data analysis process, including data loading, smoothing, and the three resonance detection methods
+- Comments about the plotting process, including color choices and annotation placement
+- Comments about the structure of the output, including saved files and console prints
+
+### Changed
+
+### Fixed
+
 ## [2.4] - 2024-07-08
 ### Added
 
