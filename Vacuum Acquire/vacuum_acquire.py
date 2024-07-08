@@ -1,3 +1,17 @@
+# User Inputs
+RUN_NAME = 'vacuum_resonance_test'  # Name for the output data file
+RP_HOST = 'rp-f0acab.local'  # Red Pitaya host name or IP address
+MW_DEVICE = 'COM5'  # Windfreak SynthHD Mini COM port (Windows) or serial device (Linux)
+MW_POWER_DB = 10.0  # Microwave generator power (dB)
+MW_FREQUENCY_MIN_MHz = 1700  # Minimum frequency (MHz)
+MW_FREQUENCY_MAX_MHz = 1850  # Maximum frequency (MHz)
+MW_FREQUENCY_STEP_MHz = 0.1  # Frequency step size (MHz)
+FREQUENCY_DECIMAL_PLACES = 1  # Number of decimal places for frequency
+AVERAGES = 5  # Number of readings to average at each frequency
+DELAY_BETWEEN_STEPS = 0.1  # Delay in seconds between frequency steps
+ESTIMATION_STEPS = 10  # Number of steps to use for time estimation
+
+
 # Import necessary libraries
 import numpy as np
 import pandas as pd
@@ -11,19 +25,6 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
 
 load_dotenv()
-
-# User Inputs
-RUN_NAME = 'vacuum_resonance_test'  # Name for the output data file
-RP_HOST = 'rp-f0acab.local'  # Red Pitaya host name or IP address
-MW_DEVICE = 'COM5'  # Windfreak SynthHD Mini COM port (Windows) or serial device (Linux)
-MW_POWER_DB = 10.0  # Microwave generator power (dB)
-MW_FREQUENCY_MIN_MHz = 1700  # Minimum frequency (MHz)
-MW_FREQUENCY_MAX_MHz = 1850  # Maximum frequency (MHz)
-MW_FREQUENCY_STEP_MHz = 0.1  # Frequency step size (MHz)
-FREQUENCY_DECIMAL_PLACES = 1  # Number of decimal places for frequency
-AVERAGES = 5  # Number of readings to average at each frequency
-DELAY_BETWEEN_STEPS = 0.1  # Delay in seconds between frequency steps
-ESTIMATION_STEPS = 10  # Number of steps to use for time estimation
 
 
 # Email notification settings
