@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1] - 2023-07-08
 ### Added
 - Prints out current MW frequency so that progress is known
+- More information is printed at initiation of the sweep
 
 ### Changed
 
