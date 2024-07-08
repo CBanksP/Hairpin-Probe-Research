@@ -1,0 +1,16 @@
+# Python-related
+*.pyc
+__pycache__/
+
+# Data files
+*.pkl
+*.png
+
+# Mac-related
+.DS_Store
+.spyproject
+.vscode
+
+# Specific to your project
+vacuum_acquire/*.pkl
+vacuum_analyze/*.png

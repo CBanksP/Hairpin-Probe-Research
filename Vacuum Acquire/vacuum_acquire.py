@@ -39,7 +39,8 @@ def acquire_vacuum_resonance_data(
     probe_signals = []
 
     # Perform frequency sweep
-    for freq in frequencies:
+    total_steps = len(frequencies)
+    for i, freq in enumerate(frequencies, 1):
         mw.set_frequency(freq)
         
         # Acquire data (average of 'averages' readings)
@@ -53,6 +54,9 @@ def acquire_vacuum_resonance_data(
         
         probe_signals.append(signal)
 
+        # Print progress
+        print(f"Frequency: {freq:.2f} MHz ({i}/{total_steps})")
+
     # Clean up
     rp.close()
     mw.enable(False)
@@ -63,12 +67,18 @@ def acquire_vacuum_resonance_data(
     # Save data
     df.to_pickle(f'{run_name}_data.pkl')
 
-    print(f"Data acquisition complete. Data saved to {run_name}_data.pkl")
+    print(f"\nData acquisition complete. Data saved to {run_name}_data.pkl")
 
     return df
 
 # Run the script
 if __name__ == "__main__":
+    print("Starting data acquisition...")
+    print(f"Frequency range: {MW_FREQUENCY_MIN_MHz} MHz to {MW_FREQUENCY_MAX_MHz} MHz")
+    print(f"Step size: {MW_FREQUENCY_STEP_MHz} MHz")
+    print(f"Averages per frequency: {AVERAGES}")
+    print("----------------------------------------")
+
     data = acquire_vacuum_resonance_data(
         rp_host=RP_HOST,
         mw_device=MW_DEVICE,
@@ -79,3 +89,5 @@ if __name__ == "__main__":
         averages=AVERAGES,
         run_name=RUN_NAME
     )
+
+    print("Data acquisition script completed.")
