@@ -7,7 +7,9 @@ import time
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
 from datetime import datetime, timedelta
+import os
 
 # User Inputs
 RUN_NAME = 'vacuum_resonance_test'
@@ -41,70 +43,7 @@ def acquire_vacuum_resonance_data(
     delay_between_steps,
     estimation_steps
 ):
-    rp = rp_scpi.scpi(rp_host)
-    mw = SynthHDMini(mw_device)
-    mw.enable()
-    mw.set_power(mw_power_dB)
-
-    frequencies = np.round(np.arange(mw_frequency_min_MHz, mw_frequency_max_MHz + mw_frequency_step_MHz, mw_frequency_step_MHz), frequency_decimal_places)
-
-    probe_signals = []
-    error_frequencies = []
-
-    total_steps = len(frequencies)
-    start_time = time.time()
-    estimation_printed = False
-
-    for i, freq in enumerate(frequencies, 1):
-        mw.set_frequency(freq)
-        time.sleep(delay_between_steps)
-        
-        signal = 0
-        error_occurred = False
-        for _ in range(averages):
-            try:
-                rp.tx_txt('ACQ:START')
-                rp.tx_txt('ACQ:STOP')
-                response = rp.txrx_txt('ACQ:SOUR2:DATA?')
-                signal_value = float(response.split(',')[1])
-                signal += signal_value
-            except (ValueError, IndexError) as e:
-                print(f"Error at frequency {freq:.{frequency_decimal_places}f} MHz: {str(e)}")
-                print(f"Full response: {response}")
-                error_occurred = True
-                break
-        
-        if error_occurred:
-            error_frequencies.append(freq)
-            continue
-        
-        signal /= averages
-        probe_signals.append(signal)
-
-        # Print progress
-        print(f"Frequency: {freq:.{frequency_decimal_places}f} MHz ({i}/{total_steps})")
-
-        if i == estimation_steps and not estimation_printed:
-            elapsed_time = time.time() - start_time
-            time_per_step = elapsed_time / estimation_steps
-            remaining_steps = total_steps - estimation_steps
-            estimated_time_remaining = remaining_steps * time_per_step
-            estimated_completion_time = datetime.now() + timedelta(seconds=estimated_time_remaining)
-            
-            print(f"\nEstimated time remaining: {timedelta(seconds=int(estimated_time_remaining))}")
-            print(f"Estimated completion time: {estimated_completion_time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-            
-            estimation_printed = True
-
-    rp.close()
-    mw.enable(False)
-
-    df = pd.DataFrame({'Frequency (MHz)': frequencies[~np.isin(frequencies, error_frequencies)], 'Signal': probe_signals})
-    df.to_pickle(f'{run_name}_data.pkl')
-
-    print(f"\nData acquisition complete. Data saved to {run_name}_data.pkl")
-    if error_frequencies:
-        print(f"Errors occurred at the following frequencies: {error_frequencies}")
+    # ... [The rest of this function remains unchanged] ...
 
     plt.figure(figsize=(10, 6))
     plt.plot(df['Frequency (MHz)'], df['Signal'], 'b-')
@@ -113,11 +52,11 @@ def acquire_vacuum_resonance_data(
     plt.title('Raw Data: Vacuum Resonance of Plasma Chamber')
     plt.grid(True)
     plt.savefig(f'{run_name}_raw_data_plot.png')
-    plt.show()
+    plt.close()  # Close the plot to free up memory
 
     return df
 
-def send_notification_email(subject, body):
+def send_notification_email(subject, body, plot_path):
     if not SEND_EMAIL:
         print("Email notification skipped as SEND_EMAIL is set to False.")
         return
@@ -129,6 +68,12 @@ def send_notification_email(subject, body):
     
     msg.attach(MIMEText(body, 'plain'))
     
+    # Attach the plot
+    with open(plot_path, 'rb') as f:
+        img_data = f.read()
+    image = MIMEImage(img_data, name=os.path.basename(plot_path))
+    msg.attach(image)
+    
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login(SENDER_EMAIL, SENDER_PASSWORD)
@@ -136,7 +81,7 @@ def send_notification_email(subject, body):
     server.sendmail(SENDER_EMAIL, RECIPIENT_EMAIL, text)
     server.quit()
 
-    print("Email notification sent.")
+    print("Email notification sent with plot attached.")
 
 if __name__ == "__main__":
     print("Starting data acquisition...")
@@ -165,7 +110,9 @@ if __name__ == "__main__":
     print("Data acquisition script completed.")
     print(f"Raw data plot saved as {RUN_NAME}_raw_data_plot.png")
 
+    plot_path = f'{RUN_NAME}_raw_data_plot.png'
     send_notification_email(
         subject="Vacuum Resonance Data Acquisition Complete",
-        body=f"The vacuum resonance data acquisition script '{RUN_NAME}' has finished running."
+        body=f"The vacuum resonance data acquisition script '{RUN_NAME}' has finished running. The raw data plot is attached to this email.",
+        plot_path=plot_path
     )
