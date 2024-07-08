@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.1] - 2023-07-08
+## [1.1] - 2024-07-07
 ### Added
 - Prints out current MW frequency so that progress is known
 - More information is printed at initiation of the sweep
@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-## [1.0] - 2023-07-08
+## [1.0] - 2024-07-07
 ### Added
 - Initial release of vacuum_acquire_v3.py
 - Basic data acquisition functionality
