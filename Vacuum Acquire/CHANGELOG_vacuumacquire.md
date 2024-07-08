@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3] - 2024-07-08
+### Added
+- Short delay between frequency steps to potentially avoid an error
+- Error handling to skip a frequency if error occurs there
+- Will print if an error occurs
+- Control number of decimals for frequency precision by rounding up to specified resolution
+
+### Changed
+
+### Fixed
+- Issue where command would be issued to MW generator that exceeded it 0.1 Hz resolution
+
 ## [1.2] - 2024-07-08
 ### Added
 - Plots the raw data after the sweep for a quick diagnosis
