@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2] - 2024-07-08
+### Added
+- More print statements so that the progress is more easily known
+
+### Changed
+-Improved print statements regarding resonance detection
+
+### Fixed
+
 ## [2.1] - 2024-07-08
 ### Added
 - Annotation on the plot to indicate the resonance detected by each method
