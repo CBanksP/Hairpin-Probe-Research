@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3] - 2024-07-08
+### Added
+
+### Changed
+- Can define specific colors for the fits
+- Makes the arrow and text for each fit the respective color
+
+### Fixed
+
 ## [2.2] - 2024-07-08
 ### Added
 - More print statements so that the progress is more easily known
