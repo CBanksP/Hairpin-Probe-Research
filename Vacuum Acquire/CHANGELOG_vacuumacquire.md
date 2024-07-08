@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1] - 2024-07-08
+### Added
+- Will estimate the time of completion based upon a certain number of estimation steps set by the user
+
+### Changed
+
+### Fixed
+
 ## [2.0] - 2024-07-08
 ### Added
 - Will email the user when the sweep is over to save time

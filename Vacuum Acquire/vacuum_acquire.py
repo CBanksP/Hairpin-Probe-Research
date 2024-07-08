@@ -9,6 +9,7 @@ MW_FREQUENCY_STEP_MHz = 0.1  # Frequency step size (MHz)
 FREQUENCY_DECIMAL_PLACES = 1  # Number of decimal places for frequency
 AVERAGES = 5  # Number of readings to average at each frequency
 DELAY_BETWEEN_STEPS = 0.1  # Delay in seconds between frequency steps
+ESTIMATION_STEPS = 10  # Number of steps to use for time estimation
 
 # Email notification settings
 SENDER_EMAIL = "your_email@example.com"
@@ -25,6 +26,7 @@ import time
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from datetime import datetime, timedelta
 
 def acquire_vacuum_resonance_data(
     rp_host,
@@ -36,7 +38,8 @@ def acquire_vacuum_resonance_data(
     frequency_decimal_places,
     averages,
     run_name,
-    delay_between_steps
+    delay_between_steps,
+    estimation_steps
 ):
     # Connect to Red Pitaya
     rp = rp_scpi.scpi(rp_host)
@@ -55,6 +58,9 @@ def acquire_vacuum_resonance_data(
 
     # Perform frequency sweep
     total_steps = len(frequencies)
+    start_time = time.time()
+    estimation_printed = False
+
     for i, freq in enumerate(frequencies, 1):
         mw.set_frequency(freq)
         time.sleep(delay_between_steps)  # Add a small delay between steps
@@ -85,6 +91,19 @@ def acquire_vacuum_resonance_data(
 
         # Print progress
         print(f"Frequency: {freq:.{frequency_decimal_places}f} MHz ({i}/{total_steps})")
+
+        # Estimate time remaining after a certain number of steps
+        if i == estimation_steps and not estimation_printed:
+            elapsed_time = time.time() - start_time
+            time_per_step = elapsed_time / estimation_steps
+            remaining_steps = total_steps - estimation_steps
+            estimated_time_remaining = remaining_steps * time_per_step
+            estimated_completion_time = datetime.now() + timedelta(seconds=estimated_time_remaining)
+            
+            print(f"\nEstimated time remaining: {timedelta(seconds=int(estimated_time_remaining))}")
+            print(f"Estimated completion time: {estimated_completion_time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+            
+            estimation_printed = True
 
     # Clean up
     rp.close()
@@ -147,7 +166,8 @@ if __name__ == "__main__":
         frequency_decimal_places=FREQUENCY_DECIMAL_PLACES,
         averages=AVERAGES,
         run_name=RUN_NAME,
-        delay_between_steps=DELAY_BETWEEN_STEPS
+        delay_between_steps=DELAY_BETWEEN_STEPS,
+        estimation_steps=ESTIMATION_STEPS
     )
 
     print("Data acquisition script completed.")
