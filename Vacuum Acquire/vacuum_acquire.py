@@ -11,6 +11,7 @@ AVERAGES = 5  # Number of readings to average at each frequency
 # Import necessary libraries
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from windfreak_mini import SynthHDMini
 import redpitaya_scpi as rp_scpi
 
@@ -69,6 +70,16 @@ def acquire_vacuum_resonance_data(
 
     print(f"\nData acquisition complete. Data saved to {run_name}_data.pkl")
 
+    # Plot raw data
+    plt.figure(figsize=(10, 6))
+    plt.plot(df['Frequency (MHz)'], df['Signal'], 'b-')
+    plt.xlabel('Frequency (MHz)')
+    plt.ylabel('Signal Amplitude')
+    plt.title('Raw Data: Vacuum Resonance of Plasma Chamber')
+    plt.grid(True)
+    plt.savefig(f'{run_name}_raw_data_plot.png')
+    plt.show()
+
     return df
 
 # Run the script
@@ -91,3 +102,4 @@ if __name__ == "__main__":
     )
 
     print("Data acquisition script completed.")
+    print(f"Raw data plot saved as {RUN_NAME}_raw_data_plot.png")

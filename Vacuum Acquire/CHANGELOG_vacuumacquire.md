@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2] - 2024-07-08
+### Added
+- Plots the raw data after the sweep for a quick diagnosis
+
+### Changed
+
+### Fixed
+
 ## [1.1] - 2024-07-07
 ### Added
 - Prints out current MW frequency so that progress is known
