@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1] - 2024-07-08
+### Added
+- More error handling messages
+
+### Changed
+- Looks for a data file in the Vacuum Acquire folder
+- Plot does not have to be closed to finish script
+
+### Fixed
+
 ## [3.0] - 2024-07-08
 ### Added
 
